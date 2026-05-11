@@ -33,6 +33,12 @@ import { ChatPage } from './pages/chat/ChatPage';
 // Calendar Page
 import CalendarPage from './pages/calendar/CalendarPage';
 
+// Video Call Page
+import VideoCallPage from './pages/videocall/VideoCallPage';
+
+// Document Chamber Page
+import DocumentChamberPage from './pages/documentchamber/DocumentChamberPage';
+
 function App() {
   return (
     <AuthProvider>
@@ -96,6 +102,16 @@ function App() {
           {/* Calendar Route */}
           <Route path="/calendar" element={<DashboardLayout />}>
             <Route index element={<CalendarPage />} />
+          </Route>
+
+          {/* Video Call Route */}
+          <Route path="/videocall" element={<DashboardLayout />}>
+            <Route index element={<VideoCallPage />} />
+          </Route>
+
+          {/* Document Chamber Route */}
+          <Route path="/documentchamber" element={<DashboardLayout />}>
+            <Route index element={<DocumentChamberPage />} />
           </Route>
           
           {/* Redirect root to login */}

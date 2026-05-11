@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Bell, Calendar, TrendingUp, AlertCircle, PlusCircle } from 'lucide-react';
+import { Users, Bell, Calendar, TrendingUp, AlertCircle, PlusCircle, X, ChevronRight, ChevronLeft, HelpCircle } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
@@ -11,48 +11,178 @@ import { CollaborationRequest } from '../../types';
 import { getRequestsForEntrepreneur } from '../../data/collaborationRequests';
 import { investors } from '../../data/users';
 
+const tourSteps = [
+  {
+    title: "Welcome to Business Nexus!",
+    content: "Let us give you a quick tour of the platform to help you get started.",
+    position: "center" as const,
+  },
+  {
+    title: "Your Stats Overview",
+    content: "Here you can see your key stats — pending requests, total connections, upcoming meetings and profile views.",
+    position: "top" as const,
+  },
+  {
+    title: "Collaboration Requests",
+    content: "This section shows collaboration requests from investors who are interested in your startup. Accept or reject them here.",
+    position: "top" as const,
+  },
+  {
+    title: "Recommended Investors",
+    content: "These are investors recommended based on your startup profile. Connect with them to grow your business!",
+    position: "top" as const,
+  },
+  {
+    title: "Find More Investors",
+    content: "Click the 'Find Investors' button to browse all available investors and send collaboration requests.",
+    position: "top" as const,
+  },
+];
+
 export const EntrepreneurDashboard: React.FC = () => {
   const { user } = useAuth();
   const [collaborationRequests, setCollaborationRequests] = useState<CollaborationRequest[]>([]);
-  const [recommendedInvestors, setRecommendedInvestors] = useState(investors.slice(0, 3));
-  
+  const [recommendedInvestors] = useState(investors.slice(0, 3));
+  const [showTour, setShowTour] = useState(false);
+  const [tourStep, setTourStep] = useState(0);
+
   useEffect(() => {
     if (user) {
-      // Load collaboration requests
       const requests = getRequestsForEntrepreneur(user.id);
       setCollaborationRequests(requests);
     }
+    const tourSeen = localStorage.getItem('nexus-tour-seen');
+    if (!tourSeen) {
+      setTimeout(() => setShowTour(true), 800);
+    }
   }, [user]);
-  
+
   const handleRequestStatusUpdate = (requestId: string, status: 'accepted' | 'rejected') => {
-    setCollaborationRequests(prevRequests => 
-      prevRequests.map(req => 
+    setCollaborationRequests(prevRequests =>
+      prevRequests.map(req =>
         req.id === requestId ? { ...req, status } : req
       )
     );
   };
-  
+
+  const handleNextStep = () => {
+    if (tourStep < tourSteps.length - 1) {
+      setTourStep(tourStep + 1);
+    } else {
+      setShowTour(false);
+      localStorage.setItem('nexus-tour-seen', 'true');
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (tourStep > 0) setTourStep(tourStep - 1);
+  };
+
+  const handleCloseTour = () => {
+    setShowTour(false);
+    localStorage.setItem('nexus-tour-seen', 'true');
+  };
+
+  const handleStartTour = () => {
+    setTourStep(0);
+    setShowTour(true);
+  };
+
   if (!user) return null;
-  
+
   const pendingRequests = collaborationRequests.filter(req => req.status === 'pending');
-  
+
   return (
     <div className="space-y-6 animate-fade-in">
+
+      {/* Tour Overlay */}
+      {showTour && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4">
+            {/* Progress */}
+            <div className="flex gap-1 mb-4">
+              {tourSteps.map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-1 flex-1 rounded-full transition-all ${
+                    i <= tourStep ? "bg-blue-600" : "bg-gray-200"
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Step number */}
+            <p className="text-xs text-blue-600 font-semibold mb-1">
+              Step {tourStep + 1} of {tourSteps.length}
+            </p>
+
+            {/* Content */}
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              {tourSteps[tourStep].title}
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              {tourSteps[tourStep].content}
+            </p>
+
+            {/* Buttons */}
+            <div className="flex items-center justify-between">
+              <button
+                onClick={handleCloseTour}
+                className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                Skip tour
+              </button>
+              <div className="flex gap-2">
+                {tourStep > 0 && (
+                  <button
+                    onClick={handlePrevStep}
+                    className="flex items-center gap-1 px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                  >
+                    <ChevronLeft size={16} /> Back
+                  </button>
+                )}
+                <button
+                  onClick={handleNextStep}
+                  className="flex items-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  {tourStep === tourSteps.length - 1 ? "Finish" : "Next"}
+                  {tourStep < tourSteps.length - 1 && <ChevronRight size={16} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Close button */}
+            <button
+              onClick={handleCloseTour}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Welcome, {user.name}</h1>
           <p className="text-gray-600">Here's what's happening with your startup today</p>
         </div>
-        
-        <Link to="/investors">
-          <Button
-            leftIcon={<PlusCircle size={18} />}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleStartTour}
+            className="flex items-center gap-1.5 text-sm text-blue-600 border border-blue-200 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors font-medium"
           >
-            Find Investors
-          </Button>
-        </Link>
+            <HelpCircle size={15} /> Take a Tour
+          </button>
+          <Link to="/investors">
+            <Button leftIcon={<PlusCircle size={18} />}>
+              Find Investors
+            </Button>
+          </Link>
+        </div>
       </div>
-      
+
       {/* Summary cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-primary-50 border border-primary-100">
@@ -68,7 +198,7 @@ export const EntrepreneurDashboard: React.FC = () => {
             </div>
           </CardBody>
         </Card>
-        
+
         <Card className="bg-secondary-50 border border-secondary-100">
           <CardBody>
             <div className="flex items-center">
@@ -84,7 +214,7 @@ export const EntrepreneurDashboard: React.FC = () => {
             </div>
           </CardBody>
         </Card>
-        
+
         <Card className="bg-accent-50 border border-accent-100">
           <CardBody>
             <div className="flex items-center">
@@ -98,7 +228,7 @@ export const EntrepreneurDashboard: React.FC = () => {
             </div>
           </CardBody>
         </Card>
-        
+
         <Card className="bg-success-50 border border-success-100">
           <CardBody>
             <div className="flex items-center">
@@ -113,7 +243,7 @@ export const EntrepreneurDashboard: React.FC = () => {
           </CardBody>
         </Card>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Collaboration requests */}
         <div className="lg:col-span-2 space-y-4">
@@ -122,7 +252,7 @@ export const EntrepreneurDashboard: React.FC = () => {
               <h2 className="text-lg font-medium text-gray-900">Collaboration Requests</h2>
               <Badge variant="primary">{pendingRequests.length} pending</Badge>
             </CardHeader>
-            
+
             <CardBody>
               {collaborationRequests.length > 0 ? (
                 <div className="space-y-4">
@@ -140,13 +270,15 @@ export const EntrepreneurDashboard: React.FC = () => {
                     <AlertCircle size={24} className="text-gray-500" />
                   </div>
                   <p className="text-gray-600">No collaboration requests yet</p>
-                  <p className="text-sm text-gray-500 mt-1">When investors are interested in your startup, their requests will appear here</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    When investors are interested in your startup, their requests will appear here
+                  </p>
                 </div>
               )}
             </CardBody>
           </Card>
         </div>
-        
+
         {/* Recommended investors */}
         <div className="space-y-4">
           <Card>
@@ -156,7 +288,7 @@ export const EntrepreneurDashboard: React.FC = () => {
                 View all
               </Link>
             </CardHeader>
-            
+
             <CardBody className="space-y-4">
               {recommendedInvestors.map(investor => (
                 <InvestorCard

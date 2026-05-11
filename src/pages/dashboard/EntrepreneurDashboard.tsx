@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Bell, Calendar, TrendingUp, AlertCircle, PlusCircle, X, ChevronRight, ChevronLeft, HelpCircle } from 'lucide-react';
+import { Users, Bell, Calendar, TrendingUp, AlertCircle, PlusCircle, X, ChevronRight, ChevronLeft, HelpCircle, Wallet } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
@@ -19,7 +19,7 @@ const tourSteps = [
   },
   {
     title: "Your Stats Overview",
-    content: "Here you can see your key stats — pending requests, total connections, upcoming meetings and profile views.",
+    content: "Here you can see your key stats — pending requests, total connections, upcoming meetings, profile views and wallet balance.",
     position: "top" as const,
   },
   {
@@ -45,6 +45,7 @@ export const EntrepreneurDashboard: React.FC = () => {
   const [recommendedInvestors] = useState(investors.slice(0, 3));
   const [showTour, setShowTour] = useState(false);
   const [tourStep, setTourStep] = useState(0);
+  const walletBalance = 47000;
 
   useEffect(() => {
     if (user) {
@@ -98,64 +99,30 @@ export const EntrepreneurDashboard: React.FC = () => {
       {/* Tour Overlay */}
       {showTour && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4">
-            {/* Progress */}
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4 relative">
             <div className="flex gap-1 mb-4">
               {tourSteps.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1 flex-1 rounded-full transition-all ${
-                    i <= tourStep ? "bg-blue-600" : "bg-gray-200"
-                  }`}
-                />
+                <div key={i} className={`h-1 flex-1 rounded-full transition-all ${i <= tourStep ? "bg-blue-600" : "bg-gray-200"}`} />
               ))}
             </div>
-
-            {/* Step number */}
-            <p className="text-xs text-blue-600 font-semibold mb-1">
-              Step {tourStep + 1} of {tourSteps.length}
-            </p>
-
-            {/* Content */}
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              {tourSteps[tourStep].title}
-            </h3>
-            <p className="text-sm text-gray-600 mb-6">
-              {tourSteps[tourStep].content}
-            </p>
-
-            {/* Buttons */}
+            <p className="text-xs text-blue-600 font-semibold mb-1">Step {tourStep + 1} of {tourSteps.length}</p>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">{tourSteps[tourStep].title}</h3>
+            <p className="text-sm text-gray-600 mb-6">{tourSteps[tourStep].content}</p>
             <div className="flex items-center justify-between">
-              <button
-                onClick={handleCloseTour}
-                className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                Skip tour
-              </button>
+              <button onClick={handleCloseTour} className="text-sm text-gray-400 hover:text-gray-600 transition-colors">Skip tour</button>
               <div className="flex gap-2">
                 {tourStep > 0 && (
-                  <button
-                    onClick={handlePrevStep}
-                    className="flex items-center gap-1 px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-                  >
+                  <button onClick={handlePrevStep} className="flex items-center gap-1 px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
                     <ChevronLeft size={16} /> Back
                   </button>
                 )}
-                <button
-                  onClick={handleNextStep}
-                  className="flex items-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
-                >
+                <button onClick={handleNextStep} className="flex items-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">
                   {tourStep === tourSteps.length - 1 ? "Finish" : "Next"}
                   {tourStep < tourSteps.length - 1 && <ChevronRight size={16} />}
                 </button>
               </div>
             </div>
-
-            {/* Close button */}
-            <button
-              onClick={handleCloseTour}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-            >
+            <button onClick={handleCloseTour} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
               <X size={18} />
             </button>
           </div>
@@ -176,15 +143,13 @@ export const EntrepreneurDashboard: React.FC = () => {
             <HelpCircle size={15} /> Take a Tour
           </button>
           <Link to="/investors">
-            <Button leftIcon={<PlusCircle size={18} />}>
-              Find Investors
-            </Button>
+            <Button leftIcon={<PlusCircle size={18} />}>Find Investors</Button>
           </Link>
         </div>
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="bg-primary-50 border border-primary-100">
           <CardBody>
             <div className="flex items-center">
@@ -242,6 +207,23 @@ export const EntrepreneurDashboard: React.FC = () => {
             </div>
           </CardBody>
         </Card>
+
+        {/* Wallet Balance Card — same style as other cards */}
+        <Card className="bg-blue-50 border border-blue-100">
+          <CardBody>
+            <div className="flex items-center">
+              <div className="p-3 bg-blue-100 rounded-full mr-4">
+                <Wallet size={20} className="text-blue-700" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-blue-700">Wallet Balance</p>
+                <h3 className="text-xl font-semibold text-blue-900">
+                  ${walletBalance.toLocaleString()}
+                </h3>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -252,7 +234,6 @@ export const EntrepreneurDashboard: React.FC = () => {
               <h2 className="text-lg font-medium text-gray-900">Collaboration Requests</h2>
               <Badge variant="primary">{pendingRequests.length} pending</Badge>
             </CardHeader>
-
             <CardBody>
               {collaborationRequests.length > 0 ? (
                 <div className="space-y-4">
@@ -288,7 +269,6 @@ export const EntrepreneurDashboard: React.FC = () => {
                 View all
               </Link>
             </CardHeader>
-
             <CardBody className="space-y-4">
               {recommendedInvestors.map(investor => (
                 <InvestorCard

@@ -1,4 +1,8 @@
 import { useState, useRef, useEffect } from "react";
+import {
+  Mic, MicOff, Video, VideoOff, Monitor, MonitorOff,
+  Users, MessageSquare, PhoneOff, Send, Phone
+} from "lucide-react";
 
 interface Participant {
   id: string;
@@ -31,7 +35,6 @@ export default function VideoCallPage() {
     { id: "3", name: "Ali Hassan", role: "Entrepreneur", avatar: "A", isMuted: true, isVideoOff: false },
   ];
 
-  // Timer for call duration
   useEffect(() => {
     if (callActive) {
       timerRef.current = setInterval(() => {
@@ -82,7 +85,6 @@ export default function VideoCallPage() {
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         {/* Main Video Area */}
         <div className="xl:col-span-3 flex flex-col gap-4">
-          {/* Video Grid */}
           <div className="bg-gray-900 rounded-2xl overflow-hidden" style={{ minHeight: "400px" }}>
             {!callActive ? (
               // Pre-call screen
@@ -97,28 +99,27 @@ export default function VideoCallPage() {
                     onClick={() => setIsMuted(!isMuted)}
                     className={`p-4 rounded-full text-white transition-colors ${isMuted ? "bg-red-500" : "bg-gray-700 hover:bg-gray-600"}`}
                   >
-                    {isMuted ? "🔇" : "🎤"}
+                    {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
                   </button>
                   <button
                     onClick={() => setIsVideoOff(!isVideoOff)}
                     className={`p-4 rounded-full text-white transition-colors ${isVideoOff ? "bg-red-500" : "bg-gray-700 hover:bg-gray-600"}`}
                   >
-                    {isVideoOff ? "📵" : "📹"}
+                    {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
                   </button>
                 </div>
                 <button
                   onClick={() => setCallActive(true)}
-                  className="bg-green-500 hover:bg-green-600 text-white px-10 py-3 rounded-full font-semibold text-lg transition-colors"
+                  className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-10 py-3 rounded-full font-semibold text-lg transition-colors"
                 >
-                  Join Call
+                  <Phone size={20} /> Join Call
                 </button>
               </div>
             ) : (
               // Active call screen
               <div className="relative h-full" style={{ minHeight: "400px" }}>
-                {/* Main video (other participant) */}
+                {/* Main video */}
                 <div className="w-full h-full bg-gray-800 flex items-center justify-center" style={{ minHeight: "400px" }}>
-                  {/* Simulated video feed */}
                   <div className="flex flex-col items-center">
                     <div className="w-32 h-32 bg-blue-700 rounded-full flex items-center justify-center text-white text-5xl font-bold mb-4">
                       S
@@ -128,83 +129,72 @@ export default function VideoCallPage() {
                   </div>
                 </div>
 
-                {/* Your video (picture-in-picture) */}
+                {/* Picture-in-picture */}
                 <div className="absolute top-4 right-4 w-36 h-24 bg-gray-700 rounded-xl flex items-center justify-center border-2 border-gray-600">
-                  {isVideoOff ? (
-                    <div className="flex flex-col items-center">
-                      <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">R</div>
-                      <p className="text-white text-xs mt-1">You</p>
+                  <div className="flex flex-col items-center">
+                    <div className={`w-10 h-10 ${isVideoOff ? "bg-blue-600" : "bg-green-600"} rounded-full flex items-center justify-center text-white font-bold`}>
+                      R
                     </div>
-                  ) : (
-                    <div className="flex flex-col items-center">
-                      <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">R</div>
-                      <p className="text-white text-xs mt-1">You (Live)</p>
-                    </div>
-                  )}
+                    <p className="text-white text-xs mt-1">{isVideoOff ? "You" : "You (Live)"}</p>
+                  </div>
                 </div>
 
                 {/* Screen share indicator */}
                 {isScreenSharing && (
-                  <div className="absolute top-4 left-4 bg-blue-600 text-white text-xs px-3 py-1 rounded-full">
-                    🖥️ Screen Sharing
+                  <div className="absolute top-4 left-4 bg-blue-600 text-white text-xs px-3 py-1 rounded-full flex items-center gap-1">
+                    <Monitor size={12} /> Screen Sharing
                   </div>
                 )}
 
                 {/* Call Controls */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
                   <div className="flex items-center justify-center gap-4">
-                    {/* Mute */}
                     <button
                       onClick={() => setIsMuted(!isMuted)}
                       className={`p-4 rounded-full text-white transition-all ${isMuted ? "bg-red-500 hover:bg-red-600" : "bg-gray-700 hover:bg-gray-600"}`}
                       title={isMuted ? "Unmute" : "Mute"}
                     >
-                      {isMuted ? "🔇" : "🎤"}
+                      {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
                     </button>
 
-                    {/* Video */}
                     <button
                       onClick={() => setIsVideoOff(!isVideoOff)}
                       className={`p-4 rounded-full text-white transition-all ${isVideoOff ? "bg-red-500 hover:bg-red-600" : "bg-gray-700 hover:bg-gray-600"}`}
                       title={isVideoOff ? "Turn on video" : "Turn off video"}
                     >
-                      {isVideoOff ? "📵" : "📹"}
+                      {isVideoOff ? <VideoOff size={20} /> : <Video size={20} />}
                     </button>
 
-                    {/* Screen Share */}
                     <button
                       onClick={() => setIsScreenSharing(!isScreenSharing)}
                       className={`p-4 rounded-full text-white transition-all ${isScreenSharing ? "bg-blue-500 hover:bg-blue-600" : "bg-gray-700 hover:bg-gray-600"}`}
                       title="Share Screen"
                     >
-                      🖥️
+                      {isScreenSharing ? <MonitorOff size={20} /> : <Monitor size={20} />}
                     </button>
 
-                    {/* Participants */}
                     <button
                       onClick={() => { setShowParticipants(!showParticipants); setShowChat(false); }}
                       className={`p-4 rounded-full text-white transition-all ${showParticipants ? "bg-blue-500" : "bg-gray-700 hover:bg-gray-600"}`}
                       title="Participants"
                     >
-                      👥
+                      <Users size={20} />
                     </button>
 
-                    {/* Chat */}
                     <button
                       onClick={() => { setShowChat(!showChat); setShowParticipants(false); }}
                       className={`p-4 rounded-full text-white transition-all ${showChat ? "bg-blue-500" : "bg-gray-700 hover:bg-gray-600"}`}
                       title="Chat"
                     >
-                      💬
+                      <MessageSquare size={20} />
                     </button>
 
-                    {/* End Call */}
                     <button
                       onClick={() => { setCallActive(false); setIsScreenSharing(false); }}
-                      className="p-4 rounded-full bg-red-500 hover:bg-red-600 text-white transition-all px-8"
+                      className="flex items-center gap-2 px-6 py-4 rounded-full bg-red-500 hover:bg-red-600 text-white transition-all font-medium"
                       title="End Call"
                     >
-                      📵 End
+                      <PhoneOff size={20} /> End
                     </button>
                   </div>
                 </div>
@@ -212,7 +202,7 @@ export default function VideoCallPage() {
             )}
           </div>
 
-          {/* Participants strip (when call active) */}
+          {/* Participants strip */}
           {callActive && (
             <div className="flex gap-3 overflow-x-auto pb-2">
               {participants.map((p) => (
@@ -225,8 +215,8 @@ export default function VideoCallPage() {
                     <p className="text-xs text-gray-500">{p.role}</p>
                   </div>
                   <div className="ml-auto flex gap-1">
-                    {p.isMuted && <span className="text-xs">🔇</span>}
-                    {p.isVideoOff && <span className="text-xs">📵</span>}
+                    {p.isMuted && <MicOff size={14} className="text-red-400" />}
+                    {p.isVideoOff && <VideoOff size={14} className="text-red-400" />}
                   </div>
                 </div>
               ))}
@@ -234,12 +224,14 @@ export default function VideoCallPage() {
           )}
         </div>
 
-        {/* Right Panel — Participants or Chat */}
+        {/* Right Panel */}
         <div className="xl:col-span-1">
           {/* Participants Panel */}
           {showParticipants && callActive && (
             <div className="bg-white rounded-xl border border-gray-200 p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">👥 Participants ({participants.length})</h3>
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <Users size={16} className="text-blue-600" /> Participants ({participants.length})
+              </h3>
               <div className="space-y-3">
                 {participants.map((p) => (
                   <div key={p.id} className="flex items-center gap-3">
@@ -250,9 +242,9 @@ export default function VideoCallPage() {
                       <p className="text-sm font-medium text-gray-900">{p.name}</p>
                       <p className="text-xs text-gray-500">{p.role}</p>
                     </div>
-                    <div className="ml-auto text-xs flex gap-1">
-                      {p.isMuted && "🔇"}
-                      {p.isVideoOff && "📵"}
+                    <div className="ml-auto flex gap-1">
+                      {p.isMuted && <MicOff size={14} className="text-red-400" />}
+                      {p.isVideoOff && <VideoOff size={14} className="text-red-400" />}
                     </div>
                   </div>
                 ))}
@@ -263,7 +255,9 @@ export default function VideoCallPage() {
           {/* Chat Panel */}
           {showChat && callActive && (
             <div className="bg-white rounded-xl border border-gray-200 p-4 flex flex-col" style={{ height: "400px" }}>
-              <h3 className="font-semibold text-gray-900 mb-3">💬 In-Call Chat</h3>
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <MessageSquare size={16} className="text-blue-600" /> In-Call Chat
+              </h3>
               <div className="flex-1 overflow-y-auto space-y-3 mb-3">
                 {messages.map((msg) => (
                   <div key={msg.id} className={`flex flex-col ${msg.sender === "You" ? "items-end" : "items-start"}`}>
@@ -285,9 +279,9 @@ export default function VideoCallPage() {
                 />
                 <button
                   onClick={handleSendMessage}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors"
                 >
-                  ➤
+                  <Send size={16} />
                 </button>
               </div>
             </div>
@@ -296,7 +290,9 @@ export default function VideoCallPage() {
           {/* Pre-call info */}
           {!callActive && (
             <div className="bg-white rounded-xl border border-gray-200 p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">📋 Meeting Info</h3>
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <Users size={16} className="text-blue-600" /> Meeting Info
+              </h3>
               <div className="space-y-3">
                 <div className="bg-blue-50 rounded-lg p-3">
                   <p className="text-xs text-gray-500">Meeting</p>

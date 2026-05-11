@@ -39,6 +39,12 @@ import VideoCallPage from './pages/videocall/VideoCallPage';
 // Document Chamber Page
 import DocumentChamberPage from './pages/documentchamber/DocumentChamberPage';
 
+// Payment Page
+import PaymentPage from './pages/payment/PaymentPage';
+
+// Security Page
+import SecurityPage from './pages/security/SecurityPage';
+
 function App() {
   return (
     <AuthProvider>
@@ -112,6 +118,16 @@ function App() {
           {/* Document Chamber Route */}
           <Route path="/documentchamber" element={<DashboardLayout />}>
             <Route index element={<DocumentChamberPage />} />
+          </Route>
+
+          {/* Payment Route */}
+          <Route path="/payment" element={<DashboardLayout />}>
+            <Route index element={<PaymentPage />} />
+          </Route>
+
+          {/* Security Route */}
+          <Route path="/security" element={<DashboardLayout />}>
+            <Route index element={<SecurityPage />} />
           </Route>
           
           {/* Redirect root to login */}

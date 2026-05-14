@@ -1,4 +1,8 @@
 import { useState, useRef } from "react";
+import {
+  Upload, FileText, FolderOpen, Trash2, PenLine,
+  CheckCircle, Clock, FileEdit, X, ChevronDown
+} from "lucide-react";
 
 type DocStatus = "Draft" | "In Review" | "Signed";
 
@@ -46,10 +50,10 @@ const statusColors: Record<DocStatus, string> = {
   Signed: "bg-green-100 text-green-700",
 };
 
-const statusIcons: Record<DocStatus, string> = {
-  Draft: "",
-  "In Review": "",
-  Signed: "",
+const statusIcons: Record<DocStatus, React.ReactNode> = {
+  Draft: <FileEdit size={12} />,
+  "In Review": <Clock size={12} />,
+  Signed: <CheckCircle size={12} />,
 };
 
 export default function DocumentChamberPage() {
@@ -65,7 +69,6 @@ export default function DocumentChamberPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastPos = useRef<{ x: number; y: number } | null>(null);
 
-  // Handle file upload
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return;
     Array.from(files).forEach((file) => {
@@ -81,7 +84,6 @@ export default function DocumentChamberPage() {
     });
   };
 
-  // Canvas drawing for signature
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setIsDrawing(true);
     const canvas = canvasRef.current;
@@ -119,7 +121,6 @@ export default function DocumentChamberPage() {
     setHasSigned(false);
   };
 
-  // Sign document
   const handleSign = () => {
     if (!selectedDoc || !signerName.trim() || !hasSigned) return;
     setDocuments((prev) =>
@@ -136,14 +137,12 @@ export default function DocumentChamberPage() {
     clearCanvas();
   };
 
-  // Change status
   const handleStatusChange = (id: string, status: DocStatus) => {
     setDocuments((prev) =>
       prev.map((doc) => (doc.id === id ? { ...doc, status } : doc))
     );
   };
 
-  // Delete document
   const handleDelete = (id: string) => {
     setDocuments((prev) => prev.filter((doc) => doc.id !== id));
     if (selectedDoc?.id === id) setSelectedDoc(null);
@@ -158,17 +157,20 @@ export default function DocumentChamberPage() {
     <div className="min-h-screen bg-gray-50 p-6">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Document Chamber</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Manage deals, contracts and agreements
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <FolderOpen size={20} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Document Chamber</h1>
+            <p className="text-sm text-gray-500 mt-0.5">Manage deals, contracts and agreements</p>
+          </div>
         </div>
         <button
           onClick={() => fileInputRef.current?.click()}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
         >
-          📤 Upload Document
+          <Upload size={16} /> Upload Document
         </button>
         <input
           ref={fileInputRef}
@@ -182,9 +184,15 @@ export default function DocumentChamberPage() {
 
       {/* Stats Row */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        {(["Draft", "In Review", "Signed"] as DocStatus[]).map((status) => (
+        {([
+          { status: "Draft" as DocStatus, icon: <FileEdit size={20} className="text-gray-600" />, bg: "bg-gray-100" },
+          { status: "In Review" as DocStatus, icon: <Clock size={20} className="text-yellow-600" />, bg: "bg-yellow-100" },
+          { status: "Signed" as DocStatus, icon: <CheckCircle size={20} className="text-green-600" />, bg: "bg-green-100" },
+        ]).map(({ status, icon, bg }) => (
           <div key={status} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3">
-            <span className="text-2xl">{statusIcons[status]}</span>
+            <div className={`w-10 h-10 ${bg} rounded-lg flex items-center justify-center`}>
+              {icon}
+            </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">
                 {documents.filter((d) => d.status === status).length}
@@ -198,7 +206,7 @@ export default function DocumentChamberPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Document List */}
         <div className="xl:col-span-2 flex flex-col gap-4">
-          {/* Drag & Drop Upload */}
+          {/* Drag & Drop */}
           <div
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
@@ -207,13 +215,11 @@ export default function DocumentChamberPage() {
               dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white"
             }`}
           >
-            <p className="text-3xl mb-2">📁</p>
-            <p className="text-sm font-medium text-gray-700">
-              Drag & drop files here
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Supports PDF, DOC, DOCX
-            </p>
+            <div className="flex justify-center mb-2">
+              <Upload size={28} className={dragOver ? "text-blue-500" : "text-gray-400"} />
+            </div>
+            <p className="text-sm font-medium text-gray-700">Drag & drop files here</p>
+            <p className="text-xs text-gray-500 mt-1">Supports PDF, DOC, DOCX</p>
           </div>
 
           {/* Filter Tabs */}
@@ -237,6 +243,7 @@ export default function DocumentChamberPage() {
           <div className="space-y-3">
             {filteredDocs.length === 0 && (
               <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
+                <FileText size={32} className="text-gray-300 mx-auto mb-2" />
                 <p className="text-gray-400 text-sm">No documents found</p>
               </div>
             )}
@@ -245,55 +252,52 @@ export default function DocumentChamberPage() {
                 key={doc.id}
                 onClick={() => setSelectedDoc(doc)}
                 className={`bg-white rounded-xl border p-4 cursor-pointer transition-all hover:shadow-md ${
-                  selectedDoc?.id === doc.id
-                    ? "border-blue-500 shadow-md"
-                    : "border-gray-200"
+                  selectedDoc?.id === doc.id ? "border-blue-500 shadow-md" : "border-gray-200"
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center text-lg">
-                      📄
+                    <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
+                      <FileText size={20} className="text-red-500" />
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900">{doc.name}</p>
-                      <p className="text-xs text-gray-500">
-                        {doc.type} • {doc.size} • {doc.uploadedAt}
-                      </p>
+                      <p className="text-xs text-gray-500">{doc.type} • {doc.size} • {doc.uploadedAt}</p>
                       {doc.signedBy && (
-                        <p className="text-xs text-green-600 mt-0.5">
-                          ✅ Signed by: {doc.signedBy}
-                        </p>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <CheckCircle size={11} className="text-green-500" />
+                          <p className="text-xs text-green-600">Signed by: {doc.signedBy}</p>
+                        </div>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusColors[doc.status]}`}>
-                      {statusIcons[doc.status]} {doc.status}
-                    </span>
-                  </div>
+                  <span className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${statusColors[doc.status]}`}>
+                    {statusIcons[doc.status]} {doc.status}
+                  </span>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right Panel — Document Actions */}
+        {/* Right Panel */}
         <div className="flex flex-col gap-4">
           {selectedDoc ? (
             <>
               {/* Document Preview */}
               <div className="bg-white rounded-xl border border-gray-200 p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">📄 Document Preview</h3>
+                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <FileText size={16} className="text-blue-600" /> Document Preview
+                </h3>
                 <div className="bg-gray-50 rounded-lg p-4 mb-3 min-h-32 flex flex-col items-center justify-center border border-gray-200">
-                  <p className="text-4xl mb-2">📄</p>
+                  <FileText size={40} className="text-gray-300 mb-2" />
                   <p className="text-sm font-medium text-gray-700 text-center">{selectedDoc.name}</p>
                   <p className="text-xs text-gray-500 mt-1">{selectedDoc.size}</p>
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-500">Status:</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[selectedDoc.status]}`}>
+                    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[selectedDoc.status]}`}>
                       {statusIcons[selectedDoc.status]} {selectedDoc.status}
                     </span>
                   </div>
@@ -310,9 +314,10 @@ export default function DocumentChamberPage() {
 
               {/* Actions */}
               <div className="bg-white rounded-xl border border-gray-200 p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">⚡ Actions</h3>
+                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <ChevronDown size={16} className="text-blue-600" /> Actions
+                </h3>
                 <div className="space-y-2">
-                  {/* Change Status */}
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Change Status:</p>
                     <div className="flex gap-2 flex-wrap">
@@ -320,7 +325,7 @@ export default function DocumentChamberPage() {
                         <button
                           key={s}
                           onClick={() => handleStatusChange(selectedDoc.id, s)}
-                          className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                          className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border transition-colors ${
                             selectedDoc.status === s
                               ? "bg-blue-600 text-white border-blue-600"
                               : "border-gray-300 text-gray-600 hover:bg-gray-50"
@@ -332,32 +337,28 @@ export default function DocumentChamberPage() {
                     </div>
                   </div>
 
-                  {/* Sign Button */}
                   {selectedDoc.status !== "Signed" && (
                     <button
                       onClick={() => setShowSignModal(true)}
-                      className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-medium transition-colors mt-2"
+                      className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-medium transition-colors mt-2"
                     >
-                       Sign Document
+                      <PenLine size={15} /> Sign Document
                     </button>
                   )}
 
-                  {/* Delete Button */}
                   <button
                     onClick={() => handleDelete(selectedDoc.id)}
-                    className="w-full border border-red-200 text-red-500 hover:bg-red-50 py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="w-full flex items-center justify-center gap-2 border border-red-200 text-red-500 hover:bg-red-50 py-2 rounded-lg text-sm font-medium transition-colors"
                   >
-                     Delete Document
+                    <Trash2 size={15} /> Delete Document
                   </button>
                 </div>
               </div>
             </>
           ) : (
             <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-              <p className="text-3xl mb-2">👆</p>
-              <p className="text-sm text-gray-500">
-                Select a document to view details and actions
-              </p>
+              <FolderOpen size={36} className="text-gray-300 mx-auto mb-2" />
+              <p className="text-sm text-gray-500">Select a document to view details and actions</p>
             </div>
           )}
         </div>
@@ -367,15 +368,14 @@ export default function DocumentChamberPage() {
       {showSignModal && selectedDoc && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">
-               Sign Document
-            </h3>
+            <div className="flex items-center gap-2 mb-1">
+              <PenLine size={18} className="text-blue-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Sign Document</h3>
+            </div>
             <p className="text-sm text-gray-500 mb-4">{selectedDoc.name}</p>
 
             <div className="mb-3">
-              <label className="text-sm font-medium text-gray-700">
-                Your Full Name
-              </label>
+              <label className="text-sm font-medium text-gray-700">Your Full Name</label>
               <input
                 type="text"
                 placeholder="Enter your name"
@@ -387,14 +387,9 @@ export default function DocumentChamberPage() {
 
             <div className="mb-4">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-sm font-medium text-gray-700">
-                  Draw Your Signature
-                </label>
-                <button
-                  onClick={clearCanvas}
-                  className="text-xs text-red-500 hover:text-red-600"
-                >
-                  Clear
+                <label className="text-sm font-medium text-gray-700">Draw Your Signature</label>
+                <button onClick={clearCanvas} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600">
+                  <X size={12} /> Clear
                 </button>
               </div>
               <canvas
@@ -407,18 +402,16 @@ export default function DocumentChamberPage() {
                 onMouseLeave={stopDrawing}
                 className="w-full border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 cursor-crosshair"
               />
-              <p className="text-xs text-gray-400 mt-1">
-                Draw your signature above
-              </p>
+              <p className="text-xs text-gray-400 mt-1">Draw your signature above</p>
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={handleSign}
                 disabled={!signerName.trim() || !hasSigned}
-                className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 rounded-lg text-sm font-medium transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 rounded-lg text-sm font-medium transition-colors"
               >
-                ✅ Confirm Signature
+                <CheckCircle size={15} /> Confirm Signature
               </button>
               <button
                 onClick={() => { setShowSignModal(false); clearCanvas(); setSignerName(""); }}

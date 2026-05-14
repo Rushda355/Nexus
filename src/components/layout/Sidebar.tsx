@@ -35,7 +35,6 @@ export const Sidebar: React.FC = () => {
   
   if (!user) return null;
   
-  // Define sidebar items based on user role
   const entrepreneurItems = [
     { to: '/dashboard/entrepreneur', icon: <Home size={20} />, text: 'Dashboard' },
     { to: '/profile/entrepreneur/' + user.id, icon: <Building2 size={20} />, text: 'My Startup' },
@@ -66,13 +65,13 @@ export const Sidebar: React.FC = () => {
   
   const sidebarItems = user.role === 'entrepreneur' ? entrepreneurItems : investorItems;
   
-  // Common items at the bottom
   const commonItems = [
     { to: '/settings', icon: <Settings size={20} />, text: 'Settings' },
     { to: '/help', icon: <HelpCircle size={20} />, text: 'Help & Support' },
   ];
   
   return (
+    // Desktop only — mobile handled by Navbar hamburger menu
     <div className="w-64 bg-white h-full border-r border-gray-200 hidden md:block">
       <div className="h-full flex flex-col">
         <div className="flex-1 py-4 overflow-y-auto">
